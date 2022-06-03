@@ -2,9 +2,8 @@ import * as React from "react";
 import { View, FlatList, StyleSheet } from "react-native";
 import PokemonCard from "./PokemonCard";
 export default function PokemonList({ navigation, data }) {
-  console.log(data);
   const renderCard = ({ item }) => (
-    <PokemonCard navigation={navigation} name={item.name} />
+    <PokemonCard navigation={navigation} uri={item.uri} />
   );
   return (
     <View style={styles.container}>
@@ -12,7 +11,7 @@ export default function PokemonList({ navigation, data }) {
         numColumns="2"
         data={data}
         renderItem={renderCard}
-        keyExtractor={(item) => item.name}
+        keyExtractor={(item) => item.uri}
       />
     </View>
   );

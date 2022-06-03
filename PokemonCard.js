@@ -1,16 +1,44 @@
 import * as React from "react";
 import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
+import { useQuery } from "react-query";
+import axios from "axios";
 
-export default function PokemonCard({ navigation }) {
+export default function PokemonCard({ navigation, uri }) {
+
+  const { isLoading, error, data, isFetching } = useQuery(
+    uri + "_from_card",
+    () => axios.get(uri).then((res) => res.data),
+    {
+      cacheTime: 1000 * 60 * 60 * 60, //1 hour
+    }
+  );
+
+  if (isLoading || isFetching) {
+    return (
+      <View style={[styles.card, styles.shadow]}>
+        <Text style={styles.cardTitle}>Loading...</Text>
+      </View>
+    );
+  }
+  if (error) {
+    return <Text>Error connecting to api!</Text>;
+  }
+  const id = data.id;
+  const pokemonName =
+    data.forms[0].name.charAt(0).toUpperCase() + data.forms[0].name.slice(1);
   return (
     <View style={[styles.card, styles.shadow]}>
-      <Text style={styles.cardTitle}>Evee</Text>
+      <Text style={styles.cardTitle}>{pokemonName}</Text>
       <Image
-        source={require("/Users/wojciechdrozdz/Code/Pokemon/assets/evee.webp")}
+        source={{ uri: data.sprites.front_default }}
         style={styles.thumbnail}
       />
       <TouchableOpacity
-        onPress={() => navigation.navigate("Details")}
+        onPress={() =>
+          navigation.push("Details", {
+            uri: uri,
+          })
+        }
         style={[styles.detailsButton, styles.smallShadow]}
       >
         <Text style={styles.detailsButtonText}>Details</Text>
