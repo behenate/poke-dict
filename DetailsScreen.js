@@ -1,8 +1,9 @@
 import * as React from "react";
 import { StyleSheet, Text, View, Image } from "react-native";
+import { useQuery } from "react-query";
+import axios from "axios";
 import PokemonList from "./PokemonList";
 
-const mockEvolutions = [{ name: "eevee1" }, { name: "eevee2" }];
 function StatsCell(props) {
   return (
     <View style={styles.statsCell}>
@@ -11,34 +12,107 @@ function StatsCell(props) {
     </View>
   );
 }
-function StatsTable() {
+function StatsTable({ hp, attack, defense, sAttack, sDefense, speed }) {
   return (
     <View style={styles.statsContainer}>
-      <StatsCell statName="Hp" statValue="55" />
-      <StatsCell statName="Attack" statValue="55" />
-      <StatsCell statName="Defense" statValue="55" />
-      <StatsCell statName="S-Attack" statValue="55" />
-      <StatsCell statName="S-Defense" statValue="55" />
-      <StatsCell statName="Speed" statValue="55" />
+      <StatsCell statName="Hp" statValue={hp} />
+      <StatsCell statName="Attack" statValue={attack} />
+      <StatsCell statName="Defense" statValue={defense} />
+      <StatsCell statName="S-Attack" statValue={sAttack} />
+      <StatsCell statName="S-Defense" statValue={sDefense} />
+      <StatsCell statName="Speed" statValue={speed} />
     </View>
   );
 }
 
-export default function DetailsScreen({navigation}) {
+export default function DetailsScreen({ navigation, route }) {
+  console.log(route);
+  const {
+    isLoading: isLoadingPokemon,
+    error: errorPokemon,
+    data: pokemon,
+    isFetching: isFetchingPokemon,
+  } = useQuery(
+    route.params.uri,
+    () => axios.get(route.params.uri).then((res) => res.data),
+    {
+      cacheTime: 1000 * 60 * 60 * 60, //1 hour
+    }
+  );
+  const speciesUrl = pokemon?.species.url;
+  const name = pokemon?.species.name;
+  const {
+    error: errorEvolutions,
+    data: evolutions,
+    isLoading: isLoadingEvolutions,
+    isFetching: isFetchingEvolutions,
+  } = useQuery(
+    speciesUrl,
+    () =>
+      axios
+        .get(speciesUrl)
+        .then((res) => axios.get(res.data.evolution_chain.url))
+        .then((res) => res.data),
+    {
+      enabled: !isLoadingPokemon,
+    }
+  );
+  if (isLoadingEvolutions || isFetchingEvolutions) {
+    return (
+      <View style={styles.detailsView}>
+        <Text style={styles.titleText}>Loading</Text>
+      </View>
+    );
+  }
+
+  const evolutionsList = getUrisFromChain(evolutions.chain, name);
+  // const evolutionsList = [{ uri: "https://pokeapi.co/api/v2/pokemon/5" }];
+  if (errorPokemon || errorEvolutions) {
+    navigation.goBack();
+  }
+  // Capitalize the pokemon name
+  const pokemonName =
+    pokemon.forms[0].name.charAt(0).toUpperCase() +
+    pokemon.forms[0].name.slice(1);
+
   return (
     <View style={styles.detailsView}>
-      <Text style={styles.titleText}>Evee</Text>
+      <Text style={styles.titleText}>{pokemonName}</Text>
       <Image
-        source={require("/Users/wojciechdrozdz/Code/Pokemon/assets/evee.webp")}
+        source={{ uri: pokemon.sprites.front_default }}
         style={styles.image}
       />
       <Text style={styles.titleText}>Stats</Text>
-      <StatsTable />
-      <Text style={styles.titleText}>Evolutions</Text>
-      <PokemonList data={mockEvolutions} navigation={navigation} />
+      <StatsTable
+        hp={pokemon.stats[0].base_stat}
+        attack={pokemon.stats[1].base_stat}
+        defense={pokemon.stats[2].base_stat}
+        sAttack={pokemon.stats[3].base_stat}
+        sDefense={pokemon.stats[4].base_stat}
+        speed={pokemon.stats[5].base_stat}
+      />
+      <Text style={styles.titleText}>Family</Text>
+      <PokemonList data={evolutionsList} navigation={navigation} />
     </View>
   );
 }
+
+function getUrisFromChain(chain, ownName) {
+  console.log(chain.species.url, ownName);
+  const uri = "https://pokeapi.co/api/v2/pokemon/" + chain.species.name;
+  let iterationResults = [{ uri: uri }];
+  if (ownName == chain.species.name) {
+    iterationResults = [];
+  }
+
+  chain.evolves_to.forEach((element) => {
+    iterationResults = iterationResults.concat(
+      getUrisFromChain(element, ownName)
+    );
+  });
+  return iterationResults;
+}
+
 const styles = StyleSheet.create({
   detailsView: {
     flex: 1,
@@ -51,6 +125,8 @@ const styles = StyleSheet.create({
     resizeMode: "contain",
     maxWidth: 150,
     maxHeight: 150,
+    minWidth: 150,
+    minHeight: 150,
   },
   statsContainer: {
     flex: 1,
