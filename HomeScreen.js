@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Text, ActivityIndicator, View } from "react-native";
+import { ActivityIndicator, View, Text } from "react-native";
 import PokemonList from "./PokemonList";
 import { useQuery } from "react-query";
-import axios from "axios";
 
 // How many pokemons to load at a time
 const LOAD_SIZE = 20;
@@ -17,11 +16,22 @@ export default function HomeScreen({ navigation }) {
         LOAD_SIZE
     ).then((res) => res.json());
 
-  const { isLoading, isError, error, data, isFetching, isPreviousData } =
-    useQuery(["pokemon", offset], () => fetchPokemon(offset), {
+  const { isLoading, error, data } = useQuery(
+    ["pokemonList", offset],
+    () => fetchPokemon(offset),
+    {
       keepPreviousData: true,
-    });
-
+      cacheTime: 1000 * 60 * 60 * 60, // 1 hour
+      staleTime: 1000 * 60 * 60 * 10, // 10 minutes
+    }
+  );
+  if (error) {
+    return (
+      <View>
+        <Text>Couldn't load data!</Text>
+      </View>
+    );
+  }
   // Wait for the first load
   useEffect(() => {
     if (!isLoading) {
@@ -54,8 +64,3 @@ function dataForList(data, listData, setListData) {
   });
   setListData([...listData, ...res]);
 }
-
-// const styles = StyleSheet.create({
-//   pokemonListContainer:{
-//     }
-// });

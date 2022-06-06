@@ -35,7 +35,8 @@ export default function DetailsScreen({ navigation, route }) {
     route.params.uri,
     () => axios.get(route.params.uri).then((res) => res.data),
     {
-      cacheTime: 1000 * 60 * 60 * 60, //1 hour
+      cacheTime: 1000 * 60 * 60 * 60, //1 hour,
+      staleTime: 1000 * 60 * 60 * 10, // 10 minutes
     }
   );
   const speciesUrl = pokemon?.species.url;
@@ -55,11 +56,9 @@ export default function DetailsScreen({ navigation, route }) {
     {
       enabled: !isLoadingPokemon && !isFetchingPokemon,
       cacheTime: 1000 * 60 * 60 * 60, //1 hour
+      staleTime: 1000 * 60 * 60 * 10, // 10 minutes
     }
   );
-  // const isLoadingEvolutions = false;
-  // const isFetchingEvolutions = false;
-  // const errorEvolutions = false;
   if (isLoadingEvolutions || isFetchingEvolutions || isLoadingPokemon) {
     return (
       <View style={styles.detailsView}>
