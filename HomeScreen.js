@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { ActivityIndicator, View, Text } from "react-native";
+import { StyleSheet, ActivityIndicator, View, Text } from "react-native";
 import PokemonList from "./PokemonList";
 import { useQuery } from "react-query";
 
@@ -39,6 +39,13 @@ export default function HomeScreen({ navigation }) {
       setOffset(offset + LOAD_SIZE);
     }
   }, [isLoading]);
+
+  const footer = () => (
+    <View style={styles.footer}>
+      <ActivityIndicator size="large" />
+    </View>
+  );
+
   return (
     <View>
       {isLoading ? (
@@ -51,6 +58,7 @@ export default function HomeScreen({ navigation }) {
             setOffset(offset + LOAD_SIZE);
             dataForList(data, listData, setListData);
           }}
+          footer={footer}
         />
       )}
     </View>
@@ -64,3 +72,11 @@ function dataForList(data, listData, setListData) {
   });
   setListData([...listData, ...res]);
 }
+
+const styles = StyleSheet.create({
+  footer: {
+    flex: 1,
+    alignContent: "center",
+    alignItems: "center",
+  },
+});

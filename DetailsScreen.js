@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useEffect } from "react";
 import { StyleSheet, Text, View, Image, ActivityIndicator } from "react-native";
 import { useQuery } from "react-query";
 import axios from "axios";
@@ -59,6 +59,14 @@ export default function DetailsScreen({ navigation, route }) {
       staleTime: 1000 * 60 * 60 * 10, // 10 minutes
     }
   );
+
+  useEffect(() => {
+    if (!isLoadingPokemon)
+      navigation.setOptions({
+        title: capitalizeString(pokemon.forms[0].name) + " Details",
+      });
+  }, [isLoadingPokemon]);
+
   if (isLoadingEvolutions || isFetchingEvolutions || isLoadingPokemon) {
     return (
       <View style={styles.detailsView}>
@@ -72,14 +80,12 @@ export default function DetailsScreen({ navigation, route }) {
   if (errorPokemon || errorEvolutions) {
     navigation.goBack();
   }
-  // Capitalize the pokemon name
-  const pokemonName =
-    pokemon.forms[0].name.charAt(0).toUpperCase() +
-    pokemon.forms[0].name.slice(1);
 
   return (
     <View style={styles.detailsView}>
-      <Text style={styles.titleText}>{pokemonName}</Text>
+      <Text style={styles.titleText}>
+        {capitalizeString(pokemon.forms[0].name)}
+      </Text>
       <Image
         source={{ uri: pokemon.sprites.front_default }}
         style={styles.image}
@@ -114,6 +120,9 @@ function getUrisFromChain(chain, ownName) {
   return iterationResults;
 }
 
+function capitalizeString(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
 const styles = StyleSheet.create({
   detailsView: {
     flex: 1,
