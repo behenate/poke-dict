@@ -26,7 +26,6 @@ function StatsTable({ hp, attack, defense, sAttack, sDefense, speed }) {
 }
 
 export default function DetailsScreen({ navigation, route }) {
-  console.log(route);
   const {
     isLoading: isLoadingPokemon,
     error: errorPokemon,
@@ -47,20 +46,21 @@ export default function DetailsScreen({ navigation, route }) {
     isLoading: isLoadingEvolutions,
     isFetching: isFetchingEvolutions,
   } = useQuery(
-    speciesUrl,
+    route.params.uri + "_species",
     () =>
       axios
         .get(speciesUrl)
-        .then((res) =>
-          axios.get(res.data.evolution_chain.url).then((res) => res.data)
-        ),
+        .then((res) => axios.get(res.data.evolution_chain.url))
+        .then((res) => res.data),
     {
       enabled: !isLoadingPokemon && !isFetchingPokemon,
       cacheTime: 1000 * 60 * 60 * 60, //1 hour
     }
   );
-
-  if (isLoadingEvolutions || isFetchingEvolutions) {
+  // const isLoadingEvolutions = false;
+  // const isFetchingEvolutions = false;
+  // const errorEvolutions = false;
+  if (isLoadingEvolutions || isFetchingEvolutions || isLoadingPokemon) {
     return (
       <View style={styles.detailsView}>
         <ActivityIndicator size="large" />
@@ -101,7 +101,6 @@ export default function DetailsScreen({ navigation, route }) {
 }
 
 function getUrisFromChain(chain, ownName) {
-  console.log(chain.species.url, ownName);
   const uri = "https://pokeapi.co/api/v2/pokemon/" + chain.species.name;
   let iterationResults = [{ uri: uri }];
   if (ownName == chain.species.name) {

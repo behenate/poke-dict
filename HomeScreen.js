@@ -52,7 +52,6 @@ function dataForList(data, listData, setListData) {
   data.results.forEach((element) => {
     res.push({ uri: element.url });
   });
-  console.log(res);
   setListData([...listData, ...res]);
 }
 
