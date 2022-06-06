@@ -1,7 +1,7 @@
 import * as React from "react";
 import { View, FlatList, StyleSheet } from "react-native";
 import PokemonCard from "./PokemonCard";
-export default function PokemonList({ navigation, data }) {
+export default function PokemonList({ navigation, data, onEndReached}) {
   const renderCard = ({ item }) => (
     <PokemonCard navigation={navigation} uri={item.uri} />
   );
@@ -12,6 +12,8 @@ export default function PokemonList({ navigation, data }) {
         data={data}
         renderItem={renderCard}
         keyExtractor={(item) => item.uri}
+        onEndReached={onEndReached}
+        onEndReachedThreshold={0.5}
       />
     </View>
   );

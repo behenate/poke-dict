@@ -1,10 +1,17 @@
-import * as React from "react";
-import { StyleSheet, Text, View, Image, TouchableOpacity } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Image,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import { useQuery } from "react-query";
 import axios from "axios";
 
 export default function PokemonCard({ navigation, uri }) {
-
+  console.log(uri);
   const { isLoading, error, data, isFetching } = useQuery(
     uri + "_from_card",
     () => axios.get(uri).then((res) => res.data),
@@ -12,46 +19,51 @@ export default function PokemonCard({ navigation, uri }) {
       cacheTime: 1000 * 60 * 60 * 60, //1 hour
     }
   );
-
-  if (isLoading || isFetching) {
-    return (
-      <View style={[styles.card, styles.shadow]}>
-        <Text style={styles.cardTitle}>Loading...</Text>
-      </View>
-    );
-  }
   if (error) {
     return <Text>Error connecting to api!</Text>;
   }
-  const id = data.id;
-  const pokemonName =
-    data.forms[0].name.charAt(0).toUpperCase() + data.forms[0].name.slice(1);
+  const [pokemonName, setPokemonName] = useState("");
+  useEffect(() => {
+    if (!isLoading) {
+      setPokemonName(
+        data.forms[0].name.charAt(0).toUpperCase() + data.forms[0].name.slice(1)
+      );
+    }
+  }, [isLoading]);
   return (
-    <View style={[styles.card, styles.shadow]}>
-      <Text style={styles.cardTitle}>{pokemonName}</Text>
-      <Image
-        source={{ uri: data.sprites.front_default }}
-        style={styles.thumbnail}
-      />
-      <TouchableOpacity
-        onPress={() =>
-          navigation.push("Details", {
-            uri: uri,
-          })
-        }
-        style={[styles.detailsButton, styles.smallShadow]}
-      >
-        <Text style={styles.detailsButtonText}>Details</Text>
-      </TouchableOpacity>
+    <View style={[styles.centerFlex, styles.card, styles.shadow]}>
+      {isLoading || isFetching ? (
+        <ActivityIndicator size="large" />
+      ) : (
+        <View style={styles.centerFlex}>
+          <Text style={styles.cardTitle}>{pokemonName}</Text>
+          <Image
+            source={{ uri: data.sprites.front_default }}
+            style={styles.thumbnail}
+          />
+          <TouchableOpacity
+            onPress={() =>
+              navigation.push("Details", {
+                uri: uri,
+              })
+            }
+            style={[styles.detailsButton, styles.smallShadow]}
+          >
+            <Text style={styles.detailsButtonText}>Details</Text>
+          </TouchableOpacity>
+        </View>
+      )}
     </View>
   );
 }
 const styles = StyleSheet.create({
-  card: {
+  centerFlex: {
     flex: 1,
-    justifyContent: "space-evenly",
+    justifyContent: "center",
     alignItems: "center",
-    alignContent: "center",
+  },
+  card: {
+    justifyContent: "space-evenly",
     backgroundColor: "#fff",
     height: 200,
     width: 150,
@@ -59,8 +71,8 @@ const styles = StyleSheet.create({
     margin: 10,
   },
   thumbnail: {
-    width: 75,
-    height: 75,
+    width: 90,
+    height: 90,
     resizeMode: "contain",
     marginBottom: 10,
   },

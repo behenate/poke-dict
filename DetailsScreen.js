@@ -1,5 +1,5 @@
 import * as React from "react";
-import { StyleSheet, Text, View, Image } from "react-native";
+import { StyleSheet, Text, View, Image, ActivityIndicator } from "react-native";
 import { useQuery } from "react-query";
 import axios from "axios";
 import PokemonList from "./PokemonList";
@@ -51,16 +51,19 @@ export default function DetailsScreen({ navigation, route }) {
     () =>
       axios
         .get(speciesUrl)
-        .then((res) => axios.get(res.data.evolution_chain.url))
-        .then((res) => res.data),
+        .then((res) =>
+          axios.get(res.data.evolution_chain.url).then((res) => res.data)
+        ),
     {
-      enabled: !isLoadingPokemon,
+      enabled: !isLoadingPokemon && !isFetchingPokemon,
+      cacheTime: 1000 * 60 * 60 * 60, //1 hour
     }
   );
+
   if (isLoadingEvolutions || isFetchingEvolutions) {
     return (
       <View style={styles.detailsView}>
-        <Text style={styles.titleText}>Loading</Text>
+        <ActivityIndicator size="large" />
       </View>
     );
   }
