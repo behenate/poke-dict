@@ -4,6 +4,7 @@ import { useQuery } from "react-query";
 import axios from "axios";
 import PokemonList from "./PokemonList";
 import PropTypes from "prop-types";
+
 function StatsCell({ statName, statValue }) {
   return (
     <View style={styles.statsCell}>

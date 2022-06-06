@@ -9,6 +9,8 @@ const LOAD_SIZE = 20;
 export default function HomeScreen({ navigation }) {
   const [offset, setOffset] = useState(0);
   const [listData, setListData] = useState([]);
+
+  // Loads an object with a list of LOAD_SIZE pokemn uris
   const fetchPokemon = (offset = 0) =>
     fetch(
       "https://pokeapi.co/api/v2/pokemon?offset=" +
@@ -26,6 +28,7 @@ export default function HomeScreen({ navigation }) {
       staleTime: 1000 * 60 * 60 * 10, // 10 minutes
     }
   );
+
   if (error) {
     return (
       <View>
@@ -33,7 +36,8 @@ export default function HomeScreen({ navigation }) {
       </View>
     );
   }
-  // Wait for the first load
+
+  // On first load populate the list
   useEffect(() => {
     if (!isLoading) {
       dataForList(data, listData, setListData);
