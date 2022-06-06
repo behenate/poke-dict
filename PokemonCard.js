@@ -11,7 +11,6 @@ import { useQuery } from "react-query";
 import axios from "axios";
 
 export default function PokemonCard({ navigation, uri }) {
-  console.log(uri);
   const { isLoading, error, data, isFetching } = useQuery(
     uri + "_from_card",
     () => axios.get(uri).then((res) => res.data),
