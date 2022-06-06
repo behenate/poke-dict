@@ -2,8 +2,9 @@ import React, { useEffect, useState } from "react";
 import { StyleSheet, ActivityIndicator, View, Text } from "react-native";
 import PokemonList from "./PokemonList";
 import { useQuery } from "react-query";
+import PropTypes from "prop-types";
 
-// How many pokemons to load at a time
+// How many pokemon to load at a time
 const LOAD_SIZE = 20;
 export default function HomeScreen({ navigation }) {
   const [offset, setOffset] = useState(0);
@@ -28,7 +29,7 @@ export default function HomeScreen({ navigation }) {
   if (error) {
     return (
       <View>
-        <Text>Couldn't load data!</Text>
+        <Text>Could not load the data!</Text>
       </View>
     );
   }
@@ -73,6 +74,9 @@ function dataForList(data, listData, setListData) {
   setListData([...listData, ...res]);
 }
 
+HomeScreen.propTypes = {
+  navigation: PropTypes.any,
+};
 const styles = StyleSheet.create({
   footer: {
     flex: 1,

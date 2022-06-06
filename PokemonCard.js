@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
+
 import {
   StyleSheet,
   Text,
@@ -9,8 +10,11 @@ import {
 } from "react-native";
 import { useQuery } from "react-query";
 import axios from "axios";
+import PropTypes from "prop-types";
 
 export default function PokemonCard({ navigation, uri }) {
+  // Fetch pokemon info for the card
+  // Add "_from_card" to id to avoid conflicts with the all pokemon list
   const { isLoading, error, data, isFetching } = useQuery(
     uri + "_from_card",
     () => axios.get(uri).then((res) => res.data),
@@ -21,21 +25,16 @@ export default function PokemonCard({ navigation, uri }) {
   if (error) {
     return <Text>Error connecting to api!</Text>;
   }
-  const [pokemonName, setPokemonName] = useState("");
-  useEffect(() => {
-    if (!isLoading) {
-      setPokemonName(
-        data.forms[0].name.charAt(0).toUpperCase() + data.forms[0].name.slice(1)
-      );
-    }
-  }, [isLoading]);
+
   return (
     <View style={[styles.centerFlex, styles.card, styles.shadow]}>
       {isLoading || isFetching ? (
         <ActivityIndicator size="large" />
       ) : (
         <View style={styles.centerFlex}>
-          <Text style={styles.cardTitle}>{pokemonName}</Text>
+          <Text style={styles.cardTitle}>
+            {capitalizeString(data.forms[0].name)}
+          </Text>
           <Image
             source={{ uri: data.sprites.front_default }}
             style={styles.thumbnail}
@@ -46,7 +45,7 @@ export default function PokemonCard({ navigation, uri }) {
                 uri: uri,
               })
             }
-            style={[styles.detailsButton, styles.smallShadow]}
+            style={[styles.detailsButton, styles.shadow, styles.smallShadow]}
           >
             <Text style={styles.detailsButtonText}>Details</Text>
           </TouchableOpacity>
@@ -55,6 +54,16 @@ export default function PokemonCard({ navigation, uri }) {
     </View>
   );
 }
+
+function capitalizeString(string) {
+  return string.charAt(0).toUpperCase() + string.slice(1);
+}
+
+PokemonCard.propTypes = {
+  navigation: PropTypes.any,
+  uri: PropTypes.string,
+};
+
 const styles = StyleSheet.create({
   centerFlex: {
     flex: 1,
@@ -96,15 +105,13 @@ const styles = StyleSheet.create({
     // iOS
     shadowOffset: { width: -2, height: 4 },
     shadowOpacity: 0.2,
-    shadowRadius: 1,
+    shadowRadius: 2,
     // Android
-    elevation: 5,
+    elevation: 7,
   },
   smallShadow: {
-    shadowColor: "#171717",
-    shadowOpacity: 0.2,
-    shadowRadius: 1,
-    shadowOffset: { width: -1, height: 2 },
-    elevation: 5,
+    shadowOffset: { width: -1, height: 3 },
+    shadowRadius: 2,
+    elevation: 4,
   },
 });

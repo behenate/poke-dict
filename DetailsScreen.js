@@ -3,12 +3,12 @@ import { StyleSheet, Text, View, Image, ActivityIndicator } from "react-native";
 import { useQuery } from "react-query";
 import axios from "axios";
 import PokemonList from "./PokemonList";
-
-function StatsCell(props) {
+import PropTypes from "prop-types";
+function StatsCell({ statName, statValue }) {
   return (
     <View style={styles.statsCell}>
-      <Text>{props.statName}</Text>
-      <Text style={{ textAlign: "center" }}>{props.statValue}</Text>
+      <Text>{statName}</Text>
+      <Text style={{ textAlign: "center" }}>{statValue}</Text>
     </View>
   );
 }
@@ -26,6 +26,7 @@ function StatsTable({ hp, attack, defense, sAttack, sDefense, speed }) {
 }
 
 export default function DetailsScreen({ navigation, route }) {
+  // Fetch the Pokemon info
   const {
     isLoading: isLoadingPokemon,
     error: errorPokemon,
@@ -39,6 +40,8 @@ export default function DetailsScreen({ navigation, route }) {
       staleTime: 1000 * 60 * 60 * 10, // 10 minutes
     }
   );
+
+  // Fetch pokemon's species and family tree info
   const speciesUrl = pokemon?.species.url;
   const name = pokemon?.species.name;
   const {
@@ -55,11 +58,12 @@ export default function DetailsScreen({ navigation, route }) {
         .then((res) => res.data),
     {
       enabled: !isLoadingPokemon && !isFetchingPokemon,
-      cacheTime: 1000 * 60 * 60 * 60, //1 hour
+      cacheTime: 1000 * 60 * 60 * 60, // 1 hour
       staleTime: 1000 * 60 * 60 * 10, // 10 minutes
     }
   );
 
+  // On load set the navigation title to pokemon name
   useEffect(() => {
     if (!isLoadingPokemon)
       navigation.setOptions({
@@ -75,11 +79,12 @@ export default function DetailsScreen({ navigation, route }) {
     );
   }
 
-  const evolutionsList = getUrisFromChain(evolutions.chain, name);
-  // const evolutionsList = [{ uri: "https://pokeapi.co/api/v2/pokemon/5" }];
   if (errorPokemon || errorEvolutions) {
     navigation.goBack();
   }
+
+  // Extracts a list of uri's from pokemon evolution chain object
+  const evolutionsList = getUrisFromChain(evolutions.chain, name);
 
   return (
     <View style={styles.detailsView}>
@@ -105,6 +110,7 @@ export default function DetailsScreen({ navigation, route }) {
   );
 }
 
+// Recursively goes deeper into the chain and returns a list of pokemon uris
 function getUrisFromChain(chain, ownName) {
   const uri = "https://pokeapi.co/api/v2/pokemon/" + chain.species.name;
   let iterationResults = [{ uri: uri }];
@@ -123,6 +129,25 @@ function getUrisFromChain(chain, ownName) {
 function capitalizeString(string) {
   return string.charAt(0).toUpperCase() + string.slice(1);
 }
+
+StatsCell.propTypes = {
+  statName: PropTypes.string,
+  statValue: PropTypes.number,
+};
+
+StatsTable.propTypes = {
+  hp: PropTypes.number,
+  attack: PropTypes.number,
+  defense: PropTypes.number,
+  sAttack: PropTypes.number,
+  sDefense: PropTypes.number,
+  speed: PropTypes.number,
+};
+
+DetailsScreen.propTypes = {
+  navigation: PropTypes.any,
+  route: PropTypes.object,
+};
 const styles = StyleSheet.create({
   detailsView: {
     flex: 1,
