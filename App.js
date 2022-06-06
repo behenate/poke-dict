@@ -3,13 +3,7 @@ import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import { NavigationContainer } from "@react-navigation/native";
 import HomeScreen from "./HomeScreen";
 import DetailsScreen from "./DetailsScreen";
-import {
-  useQuery,
-  useMutation,
-  useQueryClient,
-  QueryClient,
-  QueryClientProvider,
-} from "react-query";
+import { QueryClient, QueryClientProvider } from "react-query";
 
 const Stack = createNativeStackNavigator();
 
@@ -23,7 +17,7 @@ export default function App() {
           <Stack.Screen
             name="Home"
             component={HomeScreen}
-            options={{ title: "All Pokemon" }}
+            options={{ title: "All Pokemons" }}
           />
           <Stack.Screen name="Details" component={DetailsScreen} />
         </Stack.Navigator>
