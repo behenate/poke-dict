@@ -1,5 +1,6 @@
 import * as React from "react";
-import { View, FlatList, StyleSheet } from "react-native";
+import PropTypes from "prop-types";
+import { FlatList, StyleSheet, SafeAreaView } from "react-native";
 import PokemonCard from "./PokemonCard";
 export default function PokemonList({
   navigation,
@@ -11,7 +12,7 @@ export default function PokemonList({
     <PokemonCard navigation={navigation} uri={item.uri} />
   );
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <FlatList
         numColumns="2"
         data={data}
@@ -21,9 +22,16 @@ export default function PokemonList({
         onEndReachedThreshold={0.5}
         ListFooterComponent={footer}
       />
-    </View>
+    </SafeAreaView>
   );
 }
+
+PokemonList.propTypes = {
+  navigation: PropTypes.any,
+  data: PropTypes.array,
+  onEndReached: PropTypes.func,
+  footer: PropTypes.func,
+};
 
 const styles = StyleSheet.create({
   container: {
